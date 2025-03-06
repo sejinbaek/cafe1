@@ -3,6 +3,7 @@ package com.shop.cafe.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,25 @@ public class MemberDao {
 	
 	@Value("${spring.datasource.password}")
 	private String DB_PW;
+
+	public Member login(Member m) throws Exception {
+		Class.forName(DB_DRIVER);
+		String sql = "select * from member where email='" + m.getEmail() +"' and pwd='"+m.getPwd()+"' ";
+		try(
+			Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PW);
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+				){
+			if(rs.next()) { //로그인 ok
+				String nickname = rs.getString("nickname");
+				m.setNickname(nickname);
+				return m;
+			} else { //로그인 X
+				return null;
+			}
+		}
+		
+	}
 	
 	public void insertMember(Member m) throws Exception {
 		Class.forName(DB_DRIVER);
@@ -41,5 +61,6 @@ public class MemberDao {
 		}
 	
 	}
+
 	
 }
